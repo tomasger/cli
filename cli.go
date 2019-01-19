@@ -20,16 +20,25 @@ func main() {
 	switch selected {
 	case Login:
 		if uname, pass, ok := parseLoginParameters(args); ok {
-			token, err := GetToken(uname, pass)
-			if err != nil {
-				os.Exit(0)
-			}
-			fmt.Println(token)
+			//token, err := GetToken(uname, pass)
+			//if err != nil {
+			//	os.Exit(0)
+			//}
+			//fmt.Println(token)
+			SaveLoginData(uname, pass)
 		}
 	case Servers:
-		parseServerParameters(args)
-		token, _ := GetToken("tesonet", "partyanimal")
-		servers, _ := GetServers(token)
+		var servers []byte
+		if local := parseServerParameters(args); local {
+			servers = LoadServerData()
+			DisplayServerData(servers)
+		} else {
+			uname, pass := LoadLoginData()
+			token, _ := GetToken(uname, pass)
+			servers, _ := GetServers(token)
+			SaveServerData(servers)
+			DisplayServerData(servers)
+		}
 
 	case Help:
 		fmt.Println("Type -h or --help for more information.")

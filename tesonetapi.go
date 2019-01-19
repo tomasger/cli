@@ -24,17 +24,18 @@ func GetToken(username, password string) (string, error){
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
 	var jsonResponse map[string]string
-	dec_error := json.Unmarshal(body, &jsonResponse)
-	if dec_error != nil {
-		fmt.Println("FATAL: api response to json conversion failed.")
-	}
+	//dec_error := json.Unmarshal(body, &jsonResponse)
+	//if dec_error != nil {
+	//	fmt.Println("FATAL: api response to json conversion failed.")
+	//}
+	JsonBytesToStruct(body, &jsonResponse)
 	if val, ok := jsonResponse["token"]; ok {
 		return val, nil
 	} else {
 		return "Unauthorized", nil
 	}
 }
-func GetServers(token string) ([]servers, error) {
+func GetServers(token string) ([]byte, error) {
 	serverUrl := "http://playground.tesonet.lt/v1/servers"
 	client := &http.Client{}
 	request, _ := http.NewRequest("GET", serverUrl, nil)
@@ -46,11 +47,11 @@ func GetServers(token string) ([]servers, error) {
 	}
 	body, _ := ioutil.ReadAll(response.Body)
 	//serverlist := make([]servers, 0)
-	var serverlist []servers
-	dec_error := json.Unmarshal(body, &serverlist)
-	if dec_error != nil {
-		fmt.Println("FATAL: api response to json conversion failed.")
-	}
+	//var serverlist []servers
+	//dec_error := json.Unmarshal(body, &serverlist)
+	//if dec_error != nil {
+	//	fmt.Println("FATAL: api response to json conversion failed.")
+	//}
 	//fmt.Println(body)
-	return serverlist, nil
-}
+	return body, nil
+	}
