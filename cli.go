@@ -2,94 +2,74 @@ package main
 
 import (
 	"fmt"
-	flags2 "github.com/jessevdk/go-flags"
+	"github.com/jessevdk/go-flags"
 	"os"
 )
-type Option int
-const (
-	Help Option = iota
-	Login
-	Servers
-)
-func main() {
-	//flag.Usage= func() {
-	//	println("Usual help message.")
-	//}
-	args := os.Args
-	selected := argParser(args)
-	switch selected {
-	case Login:
-		if uname, pass, ok := parseLoginParameters(args); ok {
-			//token, err := GetToken(uname, pass)
-			//if err != nil {
-			//	os.Exit(0)
-			//}
-			//fmt.Println(token)
-			SaveLoginData(uname, pass)
-		}
-	case Servers:
-		var servers []byte
-		if local := parseServerParameters(args); local {
-			servers = LoadServerData()
-			DisplayServerData(servers)
-		} else {
-			uname, pass := LoadLoginData()
-			token, _ := GetToken(uname, pass)
-			servers, _ := GetServers(token)
-			SaveServerData(servers)
-			DisplayServerData(servers)
-		}
-
-	case Help:
-		fmt.Println("Type -h or --help for more information.")
-	default:
-		fmt.Println("Oops! The argument has yet to be implemented.")
-	}
+type Options struct {
+	//Logging bool `short:"l" description:"Enables logging"`
+}
+var options Options
+var parser = flags.NewParser(&options, flags.Default)
+type ServersCommand struct {
+	Local bool `long:"local" description:"Shows saved servers list from a persistent data storage"`
+}
+type LoginCommand struct {
+	Username string `long:"username" description:"Username for API authentication" required:"true"`
+	Password string `long:"password" description:"Password for API authentication" required:"true"`
 
 }
-
-func parseServerParameters(args []string) bool {
-	var opts struct {
-		LocalList bool `long:"local" description:"Displays saved server list from a persistent data storage."`
+func init() {
+	var login LoginCommand
+	var servers ServersCommand
+	parser.AddCommand("login",
+		"Store login credentials for API authorization in the persistent data store",
+		"Store login credentials for API authorization in the persistent data store",
+		&login)
+	parser.AddCommand("servers",
+		"Fetch server list from API. Use --local to fetch the previously saved server list",
+		"Authenticates with the server to receive a token, then uses the token to fetch the server list from the API." +
+			"Use --local to fetch the list that is saved from a previous API call to the persistent data store",
+		&servers)
+}
+func (x *LoginCommand) Execute(args []string) error {
+	fmt.Printf("Executing login command with %s and %s\n", x.Username, x.Password)
+	if len(x.Username) > 255 || len(x.Password) > 255 {
+		return &flags.Error{flags.ErrInvalidChoice, "Username and password should be under 256 symbols"}
 	}
-	args, err := flags2.ParseArgs(&opts, args)
-	if err != nil {
-		panic(err)
-		os.Exit(1)
-	}
-	if opts.LocalList {
-		return true
+	SaveLoginData(x.Username, x.Password)
+	return nil
+}
+func (x *ServersCommand) Execute(args []string) error {
+	fmt.Printf("Executing servers command with local flag set as %b\n", x.Local)
+	//TODO if the credentials file or local servers file doesn't exist an error should appear
+	var servers []byte
+	if x.Local {
+		servers = LoadServerData()
+		DisplayServerData(servers)
 	} else {
-		return false
+		uname, pass := LoadLoginData()
+		token, _ := GetToken(uname, pass)
+		servers, _ := GetServers(token)
+		SaveServerData(servers)
+		DisplayServerData(servers)
 	}
-	}
-func argParser(args []string) Option{
-	switch args[1] {
-	case "login":
-		return Login
-	case "servers":
-		return Servers
-	default:
-		fmt.Println("ERROR: Argument", args[1], "was not recognized.")
-		return Help
-	}
+	return nil
 }
-func parseLoginParameters(args []string) (string, string, bool) {
-	var opts struct {
-		Username string `short:"u" long:"username" description:"Username for API authentication"`
-		Password string `short:"p" long:"password" description:"Password for API authentication"`
-	}
-	ok := true
-	args, err := flags2.ParseArgs(&opts, args)
+func main() {
+	//if options, err := parser.Parse(); err != nil {
+	//	fmt.Println(options)
+	//	if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
+	//		os.Exit(0)
+	//	} else {
+	//
+	//	}
+	//}
+	_, err := parser.Parse() // reads program arguments
 	if err != nil {
-		fmt.Println(err)
-		//return false
+		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
+			os.Exit(0) // if --help was called
+		} else {
+			os.Exit(1) // if incorrect parameters have been passed
+		}
 	}
-	//fmt.Println("uname:", opts.Username, "password:", opts.Password)
-	//fmt.Println("username:", opts.Username, " password:", opts.Password)
-	if opts.Username == "" || opts.Password == ""  {
-		fmt.Println("ERROR: login was used but username or password has not been specified")
-		ok = false
-	}
-	return opts.Username, opts.Password, ok
 }
