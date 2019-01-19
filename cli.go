@@ -19,9 +19,18 @@ func main() {
 	selected := argParser(args)
 	switch selected {
 	case Login:
-		parseLoginParameters(args)
+		if uname, pass, ok := parseLoginParameters(args); ok {
+			token, err := GetToken(uname, pass)
+			if err != nil {
+				os.Exit(0)
+			}
+			fmt.Println(token)
+		}
 	case Servers:
 		parseServerParameters(args)
+		token, _ := GetToken("tesonet", "partyanimal")
+		servers, _ := GetServers(token)
+
 	case Help:
 		fmt.Println("Type -h or --help for more information.")
 	default:
@@ -56,24 +65,22 @@ func argParser(args []string) Option{
 		return Help
 	}
 }
-func parseLoginParameters(args []string) {
+func parseLoginParameters(args []string) (string, string, bool) {
 	var opts struct {
 		Username string `short:"u" long:"username" description:"Username for API authentication"`
 		Password string `short:"p" long:"password" description:"Password for API authentication"`
 	}
+	ok := true
 	args, err := flags2.ParseArgs(&opts, args)
 	if err != nil {
 		fmt.Println(err)
 		//return false
 	}
-	fmt.Println("uname:", opts.Username, "password", opts.Password)
+	//fmt.Println("uname:", opts.Username, "password:", opts.Password)
 	//fmt.Println("username:", opts.Username, " password:", opts.Password)
-	//if opts.Username == "" || opts.Password == ""  {
-	//	fmt.Println("ERROR: parseLoginParameters was used but username or password has not been specified")
-	//	os.Exit(0)
-	//}
-	//return true;
-}
-func servers() {
-
+	if opts.Username == "" || opts.Password == ""  {
+		fmt.Println("ERROR: login was used but username or password has not been specified")
+		ok = false
+	}
+	return opts.Username, opts.Password, ok
 }
