@@ -6,7 +6,7 @@ import (
 	"os"
 )
 type Options struct {
-	//Logging bool `short:"l" description:"Enables logging"`
+	Logging bool `short:"l" description:"Enables logging"`
 }
 var options Options
 var parser = flags.NewParser(&options, flags.Default)
@@ -32,7 +32,7 @@ func init() {
 		&servers)
 }
 func (x *LoginCommand) Execute(args []string) error {
-	fmt.Printf("Executing login command with %s and %s\n", x.Username, x.Password)
+	//fmt.Printf("Executing login command with %s and %s\n", x.Username, x.Password)
 	if len(x.Username) > 255 || len(x.Password) > 255 {
 		return &flags.Error{flags.ErrInvalidChoice, "Username and password should be under 256 symbols"}
 	}
@@ -40,7 +40,7 @@ func (x *LoginCommand) Execute(args []string) error {
 	return nil
 }
 func (x *ServersCommand) Execute(args []string) error {
-	fmt.Printf("Executing servers command with local flag set as %b\n", x.Local)
+	//fmt.Printf("Executing servers command with local flag set as %t\n", x.Local)
 	//TODO if the credentials file or local servers file doesn't exist an error should appear
 	var servers []byte
 	if x.Local {
@@ -48,8 +48,16 @@ func (x *ServersCommand) Execute(args []string) error {
 		DisplayServerData(servers)
 	} else {
 		uname, pass := LoadLoginData()
-		token, _ := GetToken(uname, pass)
-		servers, _ := GetServers(token)
+		token, err_token := GetToken(uname, pass)
+		if err_token != nil {
+			fmt.Printf(err_token.Error())
+			os.Exit(1)
+		}
+		servers, err_servers := GetServers(token)
+		if err_servers != nil {
+			fmt.Printf(err_servers.Error())
+			os.Exit(1)
+		}
 		SaveServerData(servers)
 		DisplayServerData(servers)
 	}
@@ -64,7 +72,7 @@ func main() {
 	//
 	//	}
 	//}
-	_, err := parser.Parse() // reads program arguments
+	_, err := parser.Parse() // reads program arguments, executes the program
 	if err != nil {
 		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
 			os.Exit(0) // if --help was called

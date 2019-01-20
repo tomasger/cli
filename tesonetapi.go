@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -11,29 +10,55 @@ type servers struct {
 	Name string
 	Distance int
 }
+const (
+	ErrUndefined = ErrorType(iota)
+	ErrNetwork
+	ErrHTTP
+	ErrJSON
+)
+type cliError struct {
+	errorType ErrorType
+	errorText string
+}
+func (e cliError) Error() string {
+	s := ""
+	switch e.errorType {
+	case ErrUndefined:
+		s+= "Fatal Error: "
+	case ErrNetwork:
+		s+= "Network Error: "
+	case ErrHTTP:
+		s+= "HTTP Error: "
+	case ErrJSON:
+		s+= "JSON Error: "
+	}
+	s+= e.errorText + "\n"
+	return s
+}
+func (t ErrorType) New(msg string) error {
+	return cliError{errorType:t, errorText:msg}
+}
+type ErrorType uint
 func GetToken(username, password string) (string, error){
 	authUrl := "http://playground.tesonet.lt/v1/tokens"
 	values := map[string]string{"username": username, "password": password}
-	tokenRequest, enc_error := json.Marshal(values)
-	if enc_error != nil {
-		fmt.Println("FATAL: map to json conversion failed.")
-	}
+	tokenRequest, _ := json.Marshal(values)
 	resp, err := http.Post(authUrl, "application/json", bytes.NewBuffer(tokenRequest))
 	if err != nil {
-		fmt.Println("there's an error.", err)
+		return "", ErrNetwork.New("no connection could be made")
+	}
+	if resp.StatusCode >= 400 { // error codes start at 400
+			msg := "Request was refused: "
+			msg += string(resp.StatusCode) + resp.Status
+		return "", ErrHTTP.New(msg)
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
 	var jsonResponse map[string]string
-	//dec_error := json.Unmarshal(body, &jsonResponse)
-	//if dec_error != nil {
-	//	fmt.Println("FATAL: api response to json conversion failed.")
-	//}
-	JsonBytesToStruct(body, &jsonResponse)
-	if val, ok := jsonResponse["token"]; ok {
-		return val, nil
-	} else {
-		return "Unauthorized", nil
+	err_json := JsonBytesToStruct(body, &jsonResponse)
+	if err_json != nil {
+		return "", ErrJSON.New("could not parse token data")
 	}
+	return jsonResponse["token"], nil
 }
 func GetServers(token string) ([]byte, error) {
 	serverUrl := "http://playground.tesonet.lt/v1/servers"
@@ -43,15 +68,13 @@ func GetServers(token string) ([]byte, error) {
 	request.Header.Add("Authorization", authval)
 	response, err := client.Do(request)
 	if err != nil {
-		fmt.Println("there's an error")
+		return nil, ErrNetwork.New("no connection could be made")
+	}
+	if response.StatusCode >= 400 { // error codes start at 400
+		msg := "Request was refused: "
+		msg += string(response.StatusCode) + response.Status
+		return nil, ErrHTTP.New(msg)
 	}
 	body, _ := ioutil.ReadAll(response.Body)
-	//serverlist := make([]servers, 0)
-	//var serverlist []servers
-	//dec_error := json.Unmarshal(body, &serverlist)
-	//if dec_error != nil {
-	//	fmt.Println("FATAL: api response to json conversion failed.")
-	//}
-	//fmt.Println(body)
 	return body, nil
 	}

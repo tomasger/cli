@@ -10,13 +10,13 @@ func JsonBytesToStruct(data []byte, s interface{}) error {
 	case *[]servers:
 		dec_error := json.Unmarshal(data, &s)
 		if dec_error != nil {
-			fmt.Printf("FATAL: JSON Bytes to %T conversion failed" , t)
+			fmt.Printf("FATAL: JSON Bytes to %T conversion failed\n" , t)
 			return dec_error
 		}
 	case *map[string]string:
 		dec_error := json.Unmarshal(data, &s)
 		if dec_error != nil {
-			fmt.Printf("FATAL: JSON Bytes to %T conversion failed" , t)
+			fmt.Printf("FATAL: JSON Bytes to %T conversion failed\n" , t)
 		}
 	default:
 		fmt.Printf("FATAL: type %T is not implemented for conversion", t)
