@@ -6,20 +6,18 @@ import (
 )
 
 func JsonBytesToStruct(data []byte, s interface{}) error {
-	switch t := s.(type) {
-	case *[]servers:
-		dec_error := json.Unmarshal(data, &s)
-		if dec_error != nil {
-			fmt.Printf("FATAL: JSON Bytes to %T conversion failed\n" , t)
-			return dec_error
+	dec_error := json.Unmarshal(data, &s)
+	if dec_error != nil {
+		msg := ""
+		switch t := s.(type) {
+		case *[]servers:
+			msg = fmt.Sprintf("JSON Bytes to %T conversion failed" , t)
+		case *map[string]string:
+			msg = fmt.Sprintf("JSON Bytes to %T conversion failed" , t)
+		default:
+			msg = fmt.Sprintf("JSON Bytes to %T conversion is not implemented" , t)
 		}
-	case *map[string]string:
-		dec_error := json.Unmarshal(data, &s)
-		if dec_error != nil {
-			fmt.Printf("FATAL: JSON Bytes to %T conversion failed\n" , t)
-		}
-	default:
-		fmt.Printf("FATAL: type %T is not implemented for conversion", t)
+		return ErrJSON.Wrap(dec_error, msg)
 	}
 	return nil
 }

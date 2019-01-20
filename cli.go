@@ -42,12 +42,17 @@ func (x *LoginCommand) Execute(args []string) error {
 func (x *ServersCommand) Execute(args []string) error {
 	//fmt.Printf("Executing servers command with local flag set as %t\n", x.Local)
 	//TODO if the credentials file or local servers file doesn't exist an error should appear
-	var servers []byte
 	if x.Local {
-		servers = LoadServerData()
+		servers, err_load := LoadServerData()
+		if err_load != nil {
+			fmt.Printf(err_load.Error())
+		}
 		DisplayServerData(servers)
 	} else {
-		uname, pass := LoadLoginData()
+		uname, pass, err_load := LoadLoginData()
+		if err_load != nil {
+			fmt.Printf(err_load.Error())
+		}
 		token, err_token := GetToken(uname, pass)
 		if err_token != nil {
 			fmt.Printf(err_token.Error())
@@ -64,14 +69,6 @@ func (x *ServersCommand) Execute(args []string) error {
 	return nil
 }
 func main() {
-	//if options, err := parser.Parse(); err != nil {
-	//	fmt.Println(options)
-	//	if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
-	//		os.Exit(0)
-	//	} else {
-	//
-	//	}
-	//}
 	_, err := parser.Parse() // reads program arguments, executes the program
 	if err != nil {
 		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
