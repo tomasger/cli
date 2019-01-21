@@ -15,20 +15,23 @@ type cliError struct {
 	errorText string
 }
 func (e cliError) Error() string {
-	s := ""
-	switch e.errorType {
-	case ErrUndefined:
-		s = "(ErrUndefined)"
-	case ErrNetwork:
-		s = "(ErrNetwork)"
-	case ErrHTTP:
-		s = "(ErrHTTP)"
-	case ErrJSON:
-		s = "(ErrJSON)"
+	//s := ""
+	//switch e.errorType {
+	//case ErrUndefined:
+	//	s = "(ErrUndefined)"
+	//case ErrNetwork:
+	//	s = "(ErrNetwork)"
+	//case ErrHTTP:
+	//	s = "(ErrHTTP)"
+	//case ErrJSON:
+	//	s = "(ErrJSON)"
+	//}
+	//s = e.original.Error() + " " + s
+	if e.original != nil {
+		return e.original.Error()
 	}
-	s = e.original.Error() + " " + s
-	return e.original.Error()
-}
+	return e.errorText
+	}
 func (t ErrorType) New(msg string) error {
 	return cliError{errorType:t, errorText:msg}
 }
