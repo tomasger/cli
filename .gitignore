@@ -85,3 +85,4 @@ fabric.properties
 
 cli
 storage/*
+info.log

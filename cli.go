@@ -6,7 +6,8 @@ import (
 	"os"
 )
 type Options struct {
-	Logging bool `short:"l" description:"Enables logging"`
+	Logging string `short:"l" long:"logging" description:"Enables logging" choice:"debug" choice:"warn"`
+	//Logging bool `short:"l" description:"Enables logging"`
 }
 var options Options
 var parser = flags.NewParser(&options, flags.Default)
@@ -32,7 +33,7 @@ func init() {
 		&servers)
 }
 func (x *LoginCommand) Execute(args []string) error {
-	//fmt.Printf("Executing login command with %s and %s\n", x.Username, x.Password)
+	SetupLogging()
 	if len(x.Username) > 255 || len(x.Password) > 255 {
 		return &flags.Error{flags.ErrInvalidChoice, "Username and password should be under 256 symbols"}
 	}
@@ -40,8 +41,7 @@ func (x *LoginCommand) Execute(args []string) error {
 	return nil
 }
 func (x *ServersCommand) Execute(args []string) error {
-	//fmt.Printf("Executing servers command with local flag set as %t\n", x.Local)
-	//TODO if the credentials file or local servers file doesn't exist an error should appear
+	SetupLogging()
 	if x.Local {
 		servers, err_load := LoadServerData()
 		if err_load != nil {
@@ -83,4 +83,5 @@ func main() {
 			os.Exit(1) // if incorrect parameters have been passed
 		}
 	}
+	//os.Exit(0)
 }
