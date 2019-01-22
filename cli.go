@@ -45,22 +45,28 @@ func (x *ServersCommand) Execute(args []string) error {
 	if x.Local {
 		servers, err_load := LoadServerData()
 		if err_load != nil {
-			fmt.Printf(err_load.Error())
+			fmt.Println(err_load.Error())
+			os.Exit(1)
 		}
-		DisplayServerData(servers)
+		err_display := DisplayServerData(servers)
+		if err_display != nil {
+			fmt.Println(err_display.Error())
+			os.Exit(1)
+		}
 	} else {
 		uname, pass, err_load := LoadLoginData()
 		if err_load != nil {
-			fmt.Printf(err_load.Error())
+			fmt.Println(err_load.Error())
+			os.Exit(1)
 		}
 		token, err_token := GetToken(uname, pass)
 		if err_token != nil {
-			fmt.Printf(err_token.Error())
+			fmt.Println(err_token.Error())
 			os.Exit(1)
 		}
 		servers, err_servers := GetServers(token)
 		if err_servers != nil {
-			fmt.Printf(err_servers.Error())
+			fmt.Println(err_servers.Error())
 			os.Exit(1)
 		}
 		SaveServerData(servers)

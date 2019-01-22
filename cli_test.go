@@ -1,55 +1,32 @@
 package main
 
 import (
+	"github.com/jessevdk/go-flags"
 	"testing"
 )
-func TestArgParserWithLogin(t *testing.T) {
-	args :=[]string {"path", "login", "--username", "tesonet", "--password", "partyanimal"}
-	result := argParser(args)
-	if result != Login {
-		t.Error()
+
+func TestLoginWithGoodData(t *testing.T) {
+	credFileExisted := backupStorageFile(name.credentials)
+	l := LoginCommand{"someaccount", "somepassword"}
+	err := l.Execute(nil)
+	if credFileExisted {
+		restoreStorageFile(name.credentials)
+	}
+	if err != nil {
+		t.Errorf("Login command with valid parameters failed. Error: %v", err.Error())
 	}
 }
-func TestArgParserWithServers(t *testing.T) {
-	args :=[]string {"path", "servers", "--local"}
-	result := argParser(args)
-	if result != Servers {
-		t.Error()
+func TestLoginWithInvalidData(t *testing.T) {
+	credFileExisted := backupStorageFile(name.credentials)
+	tooLongUsername := "i5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjt" +
+		"i5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjt" +
+		"i5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjti5iJcdyVU6UsI0DYbfjt"
+	l := LoginCommand{tooLongUsername, "somepassword"}
+	err := l.Execute(nil)
+	if credFileExisted {
+		restoreStorageFile(name.credentials)
 	}
-}
-func TestArgParserWithInvalidCommand(t *testing.T) {
-	args :=[]string {"path", "reconnect"}
-	result := argParser(args)
-	if result != Help {
-		t.Error()
-	}
-}
-func TestLoginWithValidInput(t *testing.T) {
-	args :=[]string {"path", "login", "--username", "tesonet", "--password", "partyanimal"}
-	result := argParser(args)
-	if result != Login {
-		t.Error()
-	}
-}
-//func TestLoginWithInvalidUsername(t *testing.T) {
-//	args :=[]string {"path", "login", "--username", "", "--password", "partyanimal"}
-//	result := argParser(args)
-//	fmt.Println("Result is: ", result)
-//	if result == Login {
-//		t.Error()
-//	}
-//}
-func TestServersWithoutArguments(t *testing.T) {
-	args :=[]string {"path", "servers"}
-	result := parseServerParameters(args)
-	if result {
-		t.Error()
-	}
-}
-func TestServersWithLocal(t *testing.T) {
-	args :=[]string {"path", "servers", "--local"}
-	result := parseServerParameters(args)
-	if !result {
-		t.Error()
+	if e, ok := err.(*flags.Error); !(ok && e.Type == flags.ErrInvalidChoice) {
+		t.Errorf("Login command with invalid parameters failed. Expected: %v. Got: %v", flags.ErrInvalidChoice, err.Error())
 	}
 }

@@ -15,30 +15,34 @@ type login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+type WebRequestData struct {
+	url string
+	method string
+	headers map[string]string
+	postdata []byte
+}
 type WebRequest interface {
 	GetBytes(url, method string, headers map[string]string, postdata []byte) ([]byte, error)
 }
-type GetWebRequest struct {}
-var requester GetWebRequest
-func (GetWebRequest) GetBytes(url, method string, headers map[string]string, postdata []byte) ([]byte, error) {
+func (requester WebRequestData) GetBytes() ([]byte, error) {
 	var requestBody io.Reader
-	if postdata == nil {
+	if requester.postdata == nil {
 		requestBody = nil
 	} else {
-		requestBody = bytes.NewBuffer(postdata)
+		requestBody = bytes.NewBuffer(requester.postdata)
 	}
-	request, _ := http.NewRequest(method, url, requestBody)
-	for hname, hvalue:= range headers {
+	request, _ := http.NewRequest(requester.method, requester.url, requestBody)
+	for hname, hvalue:= range requester.headers {
 		request.Header.Add(hname, hvalue)
 	}
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
-		return nil, ErrNetwork.Wrap(err,"no connection could be made")
+		return nil, ErrWeb.Wrap(err,"no connection could be made")
 	}
 	if response.StatusCode >= 400 { // error codes start at 400
 		msg := "Request was refused: " + response.Status
-		return nil, ErrHTTP.New(msg)
+		return nil, ErrWeb.New(msg)
 	}
 	body, _ := ioutil.ReadAll(response.Body)
 	return body, nil
@@ -47,7 +51,11 @@ func GetToken(username, password string) (string, error){
 	authUrl := "http://playground.tesonet.lt/v1/tokens"
 	tokenRequest, _ := json.Marshal(login{username,password})
 	headers := map[string]string{"Content-type": "application/json"}
-	body, _ := requester.GetBytes(authUrl,"POST", headers, tokenRequest)
+	loginRequest := WebRequestData{authUrl, "POST", headers, tokenRequest}
+	body, err := loginRequest.GetBytes()
+	if err != nil {
+		return "", ErrWeb.Wrap(err,"Failed to fetch data from API")
+	}
 	var jsonResponse map[string]string
 	err_json := JsonBytesToStruct(body, &jsonResponse)
 	if err_json != nil {
@@ -59,9 +67,10 @@ func GetServers(token string) ([]byte, error) {
 	serverUrl := "http://playground.tesonet.lt/v1/servers"
 	headers := map[string]string{"Content-type": "application/json",
 		"Authorization": "Bearer " + token}
-	body, err := requester.GetBytes(serverUrl,"GET",headers,nil)
+	serversReqest := WebRequestData{serverUrl, "GET", headers, nil}
+	body, err := serversReqest.GetBytes()
 	if err != nil {
-		return nil, ErrHTTP.Wrap(err,"Failed to fetch data from API")
+		return nil, ErrWeb.Wrap(err,"Failed to fetch data from API")
 	}
 	return body, nil
 	}

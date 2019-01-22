@@ -4,10 +4,10 @@ import "github.com/pkg/errors"
 
 const (
 	ErrUndefined = ErrorType(iota)
-	ErrNetwork
-	ErrHTTP
+	ErrWeb
 	ErrJSON
 	ErrFile
+	ErrParse
 )
 type cliError struct {
 	errorType ErrorType
@@ -21,8 +21,8 @@ func (e cliError) Error() string {
 	//	s = "(ErrUndefined)"
 	//case ErrNetwork:
 	//	s = "(ErrNetwork)"
-	//case ErrHTTP:
-	//	s = "(ErrHTTP)"
+	//case ErrWeb:
+	//	s = "(ErrWeb)"
 	//case ErrJSON:
 	//	s = "(ErrJSON)"
 	//}
