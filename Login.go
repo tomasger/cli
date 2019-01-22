@@ -15,7 +15,9 @@ func init() {
 		&loginCommand)
 }
 func (x *LoginCommand) Execute(args []string) error {
-	SetupLogging()
+	if options.Logging != "" {
+		SetupLogging()
+	}
 	if len(x.Username) > 255 || len(x.Password) > 255 {
 		return &flags.Error{flags.ErrInvalidChoice, "Username and password should be under 256 symbols"}
 	}

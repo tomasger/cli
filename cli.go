@@ -5,7 +5,7 @@ import (
 	"os"
 )
 type Options struct {
-	Logging string `short:"l" long:"logging" description:"Enables logging." default:"warn" choice:"debug" choice:"warn"`
+	Logging string `short:"l" long:"logging" description:"Enables logging." choice:"debug" choice:"warn"`
 }
 var options Options
 var parser = flags.NewParser(&options, flags.Default)

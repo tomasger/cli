@@ -17,7 +17,9 @@ func init() {
 		&serversCommand)
 }
 func (x *ServersCommand) Execute(args []string) error {
-	SetupLogging()
+	if options.Logging != "" {
+		SetupLogging()
+	}
 	if x.Local {
 		servers, err_load := LoadServerData()
 		if err_load != nil {
