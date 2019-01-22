@@ -1,22 +1,21 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"os"
 )
 
 func SetupLogging() {
-	file, err := os.OpenFile("info.log", os.O_CREATE|os.O_APPEND, 0644)
+	file, err := os.OpenFile("info.log", os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
-	defer file.Close()
-	log.SetOutput(file)
-	log.SetFormatter(&log.TextFormatter{})
+	logrus.SetFormatter(&logrus.TextFormatter{})
+	logrus.SetOutput(file)
 	switch options.Logging {
 	case "debug":
-		log.SetLevel(log.DebugLevel)
+		logrus.SetLevel(logrus.DebugLevel)
 	case "warn":
-		log.SetLevel(log.WarnLevel)
+		logrus.SetLevel(logrus.WarnLevel)
 	}
 }

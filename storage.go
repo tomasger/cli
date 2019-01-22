@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 )
@@ -16,12 +17,13 @@ func SaveLoginData(username string, password string) {
 	checkStorageAccessibility()
 	err := ioutil.WriteFile(storagePath + name.credentials, data, 0644)
 	if err != nil {
-		panic(err)
+		logrus.Panic("Failed to write to credentials file. Error: ", err)
 	}
 }
 func LoadLoginData() (string, string, error) {
 	data, err := ioutil.ReadFile(storagePath + name.credentials)
 	if err != nil {
+		logrus.Error("Failed reading from credentials file. Error: ", err)
 		return "", "", ErrFile.Wrap(err,"Failed reading from credentials file")
 	}
 	cred, parse_err := ParseLoginData(data)
@@ -34,12 +36,13 @@ func SaveServerData(serverlist []byte) {
 	checkStorageAccessibility()
 	err := ioutil.WriteFile(storagePath + name.servers, serverlist, 0644)
 	if err != nil {
-		panic(err)
+		logrus.Panic("Failed to write to server file. Error: ", err)
 	}
 }
 func LoadServerData() ([]byte, error) {
 	data, err := ioutil.ReadFile(storagePath + name.servers)
 	if err != nil {
+		logrus.Error("Failed reading from servers file. Error: ", err)
 		return nil, ErrFile.Wrap(err,"Failed reading from servers file")
 	}
 	return data, nil

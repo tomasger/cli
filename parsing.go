@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -41,7 +42,8 @@ func ParseLoginData(data []byte) ([]string, error) {
 	}
 	credentials := strings.FieldsFunc(string(data), splitFn)
 	if len(credentials) != 2 {
-		return nil, ErrParse.New("Credentials file contained invalid information")
+		logrus.Error("Credentials file contains invalid information.")
+		return nil, ErrParse.New("Credentials file contains invalid information")
 	}
 	return credentials, nil
 }
@@ -49,7 +51,8 @@ func ParseServerData (data []byte) ([]servers, error) {
 	var serverlist []servers
 	err := JsonBytesToStruct(data, &serverlist)
 	if err != nil {
-		return nil, ErrParse.Wrap(err, "Servers data contained invalid information")
+		logrus.Error("Servers file contains invalid information")
+		return nil, ErrParse.Wrap(err, "Servers data contains invalid information")
 	}
 	return serverlist, nil
 }

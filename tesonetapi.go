@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -54,11 +55,13 @@ func GetToken(username, password string) (string, error){
 	loginRequest := WebRequestData{authUrl, "POST", headers, tokenRequest}
 	body, err := loginRequest.GetBytes()
 	if err != nil {
+		logrus.Error("Could not fetch the token from the API")
 		return "", ErrWeb.Wrap(err,"Failed to fetch data from API")
 	}
 	var jsonResponse map[string]string
 	err_json := JsonBytesToStruct(body, &jsonResponse)
 	if err_json != nil {
+		logrus.Error("Failed to parse response from token API")
 		return "", ErrJSON.Wrap(err_json,"Could not parse token data")
 	}
 	return jsonResponse["token"], nil
@@ -70,6 +73,7 @@ func GetServers(token string) ([]byte, error) {
 	serversReqest := WebRequestData{serverUrl, "GET", headers, nil}
 	body, err := serversReqest.GetBytes()
 	if err != nil {
+		logrus.Error("Could not fetch the server list from the API")
 		return nil, ErrWeb.Wrap(err,"Failed to fetch data from API")
 	}
 	return body, nil
