@@ -16,7 +16,7 @@ func TestGetTokenWithCorrectAuth(t *testing.T) {
 }
 func TestGetTokenWithIncorrectAuth(t *testing.T) {
 	_, err := GetToken("tesonet", "wrongpassword")
-	if a, ok := err.(cliError); !(ok && a.errorType == ErrWeb){
+	if a, ok := err.(CliError); !(ok && a.errorType == ErrWeb){
 		t.Errorf("Failed to receive error with incorrect credentials. Expected: %v(ErrWeb). Got: %v", a.errorType, err.Error())
 	}
 }
@@ -29,21 +29,15 @@ func TestGetServersWithCorrectToken(t *testing.T) {
 }
 func TestGetServersWithIncorrectToken(t *testing.T) {
 	_, err := GetServers("f9731b590611a5a9377fbd02f247abcd")
-	if a, ok := err.(cliError); !(ok && a.errorType == ErrWeb){
+	if a, ok := err.(CliError); !(ok && a.errorType == ErrWeb){
 		t.Errorf("Failed to receive error with incorrect token. Expected: %v(ErrWeb). Got: %v", a.errorType, err.Error())
 	}
 }
 func TestGetBytesWithIncorrectUrl(t *testing.T) {
 	req := WebRequestData{url:"http://nonexistingwebsite404.lt"}
 	_, err := req.GetBytes()
-	if a, ok := err.(cliError); !(ok && a.errorType == ErrWeb){
+	if a, ok := err.(CliError); !(ok && a.errorType == ErrWeb){
 		t.Errorf("Failed to receive error connecting to a non-existing website. Expected: %v(ErrWeb). Got: %v", a.errorType, err.Error())
 	}
 
 }
-//func unknownnamefunc(w WebRequest) string {
-//	//sets parameters
-//	// calls w.GetBytes and receives data from webrequest
-//	// tries interpreting json
-//	// returns the full result that was otherwise expected from GetTokens
-//}

@@ -1,7 +1,10 @@
 package main
 
 import "github.com/jessevdk/go-flags"
-
+type Login struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 type LoginCommand struct {
 	Username string `long:"username" description:"Username for API authentication" required:"true"`
 	Password string `long:"password" description:"Password for API authentication" required:"true"`

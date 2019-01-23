@@ -8,11 +8,11 @@ import (
 	"strings"
 )
 
-func JsonBytesToStruct(data []byte, s interface{}) error {
-	dec_error := json.Unmarshal(data, &s)
-	if dec_error != nil {
+func JsonBytesToStruct(data []byte, container interface{}) error {
+	err := json.Unmarshal(data, &container)
+	if err != nil {
 		msg := ""
-		switch t := s.(type) {
+		switch t := container.(type) {
 		case *[]servers:
 			msg = fmt.Sprintf("JSON Bytes to %T conversion failed" , t)
 		case *map[string]string:
@@ -20,7 +20,7 @@ func JsonBytesToStruct(data []byte, s interface{}) error {
 		default:
 			msg = fmt.Sprintf("JSON Bytes to %T conversion is not implemented" , t)
 		}
-		return ErrJSON.Wrap(dec_error, msg)
+		return ErrJSON.Wrap(err, msg)
 	}
 	return nil
 }
@@ -33,14 +33,13 @@ func DisplayServerData (data []byte, sorting string) error {
 		Sort(serverlist, sorting)
 	}
 	fmt.Printf("NAME            DISTANCE\n")
-	for _, s := range serverlist {
-		fmt.Printf("%-20s%4d\n", s.Name, s.Distance)
+	for _, server := range serverlist {
+		fmt.Printf("%-20s%4d\n", server.Name, server.Distance)
 	}
-	fmt.Printf("Total: %v\n", len(serverlist))
+	fmt.Printf("Total number of servers: %v\n", len(serverlist))
 	return nil
 }
 func ParseLoginData(data []byte) ([]string, error) {
-	//test if encrypted
 	splitFn := func(c rune) bool {
 		return c == '\n'
 	}
@@ -60,16 +59,16 @@ func ParseServerData (data []byte) ([]servers, error) {
 	}
 	return serverlist, nil
 }
-func Sort(s []servers, sorting string) {
+func Sort(serverList []servers, sorting string) {
 	logrus.Debug("Data sorting was called. Argument: ", sorting)
 	switch sorting {
 	case "best":
-		sort.Slice(s, func(i, j int) bool {
-			return s[i].Distance < s[j].Distance
+		sort.Slice(serverList, func(i, j int) bool {
+			return serverList[i].Distance < serverList[j].Distance
 		})
 	case "alphabetical":
-		sort.Slice(s, func(i, j int) bool {
-			return s[i].Name < s[j].Name
+		sort.Slice(serverList, func(i, j int) bool {
+			return serverList[i].Name < serverList[j].Name
 		})
 	default:
 		logrus.Warning("Unexpected sorting parameter received. List will not be sorted")

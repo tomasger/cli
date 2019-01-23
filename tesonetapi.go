@@ -9,18 +9,14 @@ import (
 	"net/http"
 )
 
-type login struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
 type WebRequestData struct {
 	url string
 	method string
 	headers map[string]string
 	postdata []byte
 }
-type WebRequest interface {
-	GetBytes(url, method string, headers map[string]string, postdata []byte) ([]byte, error)
+type WebRequester interface {
+	FetchBytes(url, method string, headers map[string]string, postdata []byte) ([]byte, error)
 }
 func (requester WebRequestData) GetBytes() ([]byte, error) {
 	var requestBody io.Reader
@@ -30,8 +26,8 @@ func (requester WebRequestData) GetBytes() ([]byte, error) {
 		requestBody = bytes.NewBuffer(requester.postdata)
 	}
 	request, _ := http.NewRequest(requester.method, requester.url, requestBody)
-	for hname, hvalue:= range requester.headers {
-		request.Header.Add(hname, hvalue)
+	for headerName, headerValue := range requester.headers {
+		request.Header.Add(headerName, headerValue)
 	}
 	client := &http.Client{}
 	response, err := client.Do(request)
@@ -47,14 +43,16 @@ func (requester WebRequestData) GetBytes() ([]byte, error) {
 }
 func GetToken(username, password string) (string, error){
 	authUrl := "http://playground.tesonet.lt/v1/tokens"
-	tokenRequest, _ := json.Marshal(login{username,password})
+	tokenRequest, _ := json.Marshal(Login{username,password})
 	headers := map[string]string{"Content-type": "application/json"}
 	loginRequest := WebRequestData{authUrl, "POST", headers, tokenRequest}
+
 	body, err := loginRequest.GetBytes()
 	if err != nil {
 		logrus.Error("Could not fetch the token from the API")
 		return "", ErrWeb.Wrap(err,"Failed to fetch data from API")
 	}
+
 	var jsonResponse map[string]string
 	err_json := JsonBytesToStruct(body, &jsonResponse)
 	if err_json != nil {
@@ -67,11 +65,13 @@ func GetServers(token string) ([]byte, error) {
 	serverUrl := "http://playground.tesonet.lt/v1/servers"
 	headers := map[string]string{"Content-type": "application/json",
 		"Authorization": "Bearer " + token}
-	serversReqest := WebRequestData{serverUrl, "GET", headers, nil}
-	body, err := serversReqest.GetBytes()
+	serversRequest := WebRequestData{serverUrl, "GET", headers, nil}
+
+	body, err := serversRequest.GetBytes()
 	if err != nil {
 		logrus.Error("Could not fetch the server list from the API")
 		return nil, ErrWeb.Wrap(err,"Failed to fetch data from API")
 	}
+
 	return body, nil
 	}

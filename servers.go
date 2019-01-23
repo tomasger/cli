@@ -11,7 +11,7 @@ type servers struct {
 
 type ServersCommand struct {
 	Local bool `long:"local" description:"Shows saved servers list from a persistent data storage"`
-	Sort string `long:"sort" description:"Sorts out the server list by Alphabetical order or best first" default:"best" choice:"best" choice:"alphabetical"`
+	Sort string `short:"s" long:"sort" description:"Sorts out the server list by Alphabetical order or best first" choice:"best" choice:"alphabetical"`
 }
 var serversCommand ServersCommand
 func init() {
@@ -26,37 +26,36 @@ func (x *ServersCommand) Execute(args []string) error {
 		SetupLogging()
 	}
 	if x.Local {
-		servers, err_load := LoadServerData()
-		if err_load != nil {
-			fmt.Println(err_load.Error())
+		servers, err := LoadServerData()
+		if err != nil {
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 
-		err_display := DisplayServerData(servers, serversCommand.Sort)
-		if err_display != nil {
-			fmt.Println(err_display.Error())
+		err = DisplayServerData(servers, serversCommand.Sort)
+		if err != nil {
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 
 	} else {
-		uname, pass, err_load := LoadLoginData()
-		if err_load != nil {
-			fmt.Println(err_load.Error())
+		uname, pass, err := LoadLoginData()
+		if err != nil {
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 
-		token, err_token := GetToken(uname, pass)
-		if err_token != nil {
-			fmt.Println(err_token.Error())
+		token, err := GetToken(uname, pass)
+		if err != nil {
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 
-		servers, err_servers := GetServers(token)
-		if err_servers != nil {
-			fmt.Println(err_servers.Error())
+		servers, err := GetServers(token)
+		if err != nil {
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
-
 		SaveServerData(servers)
 		DisplayServerData(servers, serversCommand.Sort)
 	}

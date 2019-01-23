@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func backupStorageFile(fileName string) bool{
+func BackupStorageFile(fileName string) bool{
 	if _, err := os.Stat(storagePath + name.credentials); os.IsNotExist(err) {
 		return false // file did not exist
 	}
@@ -15,20 +15,20 @@ func backupStorageFile(fileName string) bool{
 	return true
 
 }
-func restoreStorageFile(fileName string) {
+func RestoreStorageFile(fileName string) {
 	os.Remove(storagePath+fileName)
 	os.Rename(storagePath+fileName+"_testbackup", storagePath+fileName)
 }
 func TestSaveLoginData(t *testing.T) {
-	fileExists := backupStorageFile(name.credentials)
+	fileExists := BackupStorageFile(name.credentials)
 	username, password := "test", "something"
 	SaveLoginData(username, password)
-	dat, readerr := ioutil.ReadFile(storagePath + name.credentials)
-	if readerr != nil {
-		t.Errorf("Save login data failed. Expected: file %v%v to be created. Got: %v", storagePath, name, readerr)
+	dat, err := ioutil.ReadFile(storagePath + name.credentials)
+	if err != nil {
+		t.Errorf("Save login data failed. Expected: file %v%v to be created. Got: %v", storagePath, name, err)
 	}
 	if fileExists {
-		restoreStorageFile(name.credentials)
+		RestoreStorageFile(name.credentials)
 	}
 	expectedData := []byte(username+"\n"+password)
 	if !bytes.Equal(dat,expectedData) {
@@ -37,15 +37,15 @@ func TestSaveLoginData(t *testing.T) {
 }
 
 func TestSaveServersData(t *testing.T) {
-	fileExists := backupStorageFile(name.servers)
+	fileExists := BackupStorageFile(name.servers)
 	expectedList := []byte("[{\"name\":\"United States #93\",\"distance\":1634},{\"name\":\"Germany #81\",\"distance\":26},{\"name\":\"Latvia #7\",\"distance\":1581}]")
 	SaveServerData(expectedList)
-	dat, readerr := ioutil.ReadFile(storagePath + name.servers)
-	if readerr != nil {
-		t.Errorf("Save server data failed. Expected: file %v%v to be created. Got: %v", storagePath, name, readerr)
+	dat, err := ioutil.ReadFile(storagePath + name.servers)
+	if err != nil {
+		t.Errorf("Save server data failed. Expected: file %v%v to be created. Got: %v", storagePath, name, err)
 	}
 	if fileExists {
-		restoreStorageFile(name.servers)
+		RestoreStorageFile(name.servers)
 	}
 	if !bytes.Equal(dat,expectedList) {
 		t.Errorf("Save login data failed. Expected file contents: %s. Got: %s", expectedList, dat)
@@ -71,7 +71,7 @@ func TestLoadLoginDataInvalid(t *testing.T) {
 	_, _, err := LoadLoginData()
 	storagePath = realStoragePath
 	name.credentials = realFilename
-	if err, ok := err.(cliError); !(ok && err.errorType == ErrParse) {
+	if err, ok := err.(CliError); !(ok && err.errorType == ErrParse) {
 		t.Errorf("Test Load login data failed. Expected: ErrParse. Got: %v", err)
 	}
 }
@@ -95,7 +95,7 @@ func TestLoadServerDataInvalid(t *testing.T) {
 	storagePath = realStoragePath
 	name.servers = realFilename
 	_, err = ParseServerData(data)
-	if err, ok := err.(cliError); !(ok && err.errorType == ErrParse) {
+	if err, ok := err.(CliError); !(ok && err.errorType == ErrParse) {
 		t.Errorf("Test Load login data failed. Expected: ErrParse. Got: %v", err)
 	}
 }

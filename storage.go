@@ -14,7 +14,7 @@ type fileNames struct {
 
 func SaveLoginData(username string, password string) {
 	data := []byte(username + "\n" + password)
-	checkStorageAccessibility()
+	ensureStorageAccessibility()
 	err := ioutil.WriteFile(storagePath + name.credentials, data, 0644)
 	if err != nil {
 		logrus.Panic("Failed to write to credentials file. Error: ", err)
@@ -33,7 +33,7 @@ func LoadLoginData() (string, string, error) {
 	return cred[0], cred[1], nil
 }
 func SaveServerData(serverlist []byte) {
-	checkStorageAccessibility()
+	ensureStorageAccessibility()
 	err := ioutil.WriteFile(storagePath + name.servers, serverlist, 0644)
 	if err != nil {
 		logrus.Panic("Failed to write to server file. Error: ", err)
@@ -47,7 +47,8 @@ func LoadServerData() ([]byte, error) {
 	}
 	return data, nil
 }
-func checkStorageAccessibility() {
+func ensureStorageAccessibility() {
+	// check if storage path exists. Create the folder for it in case it does not
 	if _, err := os.Stat(storagePath); os.IsNotExist(err) {
 		os.MkdirAll(storagePath, os.ModePerm)
 	}
