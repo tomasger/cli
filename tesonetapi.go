@@ -8,10 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 )
-type servers struct {
-	Name string
-	Distance int
-}
+
 type login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

@@ -4,9 +4,14 @@ import (
 	"fmt"
 	"os"
 )
+type servers struct {
+	Name string
+	Distance int
+}
 
 type ServersCommand struct {
 	Local bool `long:"local" description:"Shows saved servers list from a persistent data storage"`
+	Sort string `long:"sort" description:"Sorts out the server list by Alphabetical order or best first" default:"best" choice:"best" choice:"alphabetical"`
 }
 var serversCommand ServersCommand
 func init() {
@@ -26,29 +31,34 @@ func (x *ServersCommand) Execute(args []string) error {
 			fmt.Println(err_load.Error())
 			os.Exit(1)
 		}
-		err_display := DisplayServerData(servers)
+
+		err_display := DisplayServerData(servers, serversCommand.Sort)
 		if err_display != nil {
 			fmt.Println(err_display.Error())
 			os.Exit(1)
 		}
+
 	} else {
 		uname, pass, err_load := LoadLoginData()
 		if err_load != nil {
 			fmt.Println(err_load.Error())
 			os.Exit(1)
 		}
+
 		token, err_token := GetToken(uname, pass)
 		if err_token != nil {
 			fmt.Println(err_token.Error())
 			os.Exit(1)
 		}
+
 		servers, err_servers := GetServers(token)
 		if err_servers != nil {
 			fmt.Println(err_servers.Error())
 			os.Exit(1)
 		}
+
 		SaveServerData(servers)
-		DisplayServerData(servers)
+		DisplayServerData(servers, serversCommand.Sort)
 	}
 	return nil
 }

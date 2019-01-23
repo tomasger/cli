@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"sort"
 	"strings"
 )
 
@@ -23,14 +24,17 @@ func JsonBytesToStruct(data []byte, s interface{}) error {
 	}
 	return nil
 }
-func DisplayServerData (data []byte) error {
+func DisplayServerData (data []byte, sorting string) error {
 	serverlist , err := ParseServerData(data)
 	if err != nil {
 		return ErrParse.Wrap(err, "Displaying server information failed")
 	}
-	fmt.Println("NAME")
+	if sorting != "" {
+		Sort(serverlist, sorting)
+	}
+	fmt.Printf("NAME            DISTANCE\n")
 	for _, s := range serverlist {
-		fmt.Printf("%s\n", s.Name)
+		fmt.Printf("%-20s%4d\n", s.Name, s.Distance)
 	}
 	fmt.Printf("Total: %v\n", len(serverlist))
 	return nil
@@ -55,4 +59,19 @@ func ParseServerData (data []byte) ([]servers, error) {
 		return nil, ErrParse.Wrap(err, "Servers data contains invalid information")
 	}
 	return serverlist, nil
+}
+func Sort(s []servers, sorting string) {
+	logrus.Debug("Data sorting was called. Argument: ", sorting)
+	switch sorting {
+	case "best":
+		sort.Slice(s, func(i, j int) bool {
+			return s[i].Distance < s[j].Distance
+		})
+	case "alphabetical":
+		sort.Slice(s, func(i, j int) bool {
+			return s[i].Name < s[j].Name
+		})
+	default:
+		logrus.Warning("Unexpected sorting parameter received. List will not be sorted")
+		}
 }
