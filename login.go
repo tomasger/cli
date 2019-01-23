@@ -6,8 +6,8 @@ type Login struct {
 	Password string `json:"password"`
 }
 type LoginCommand struct {
-	Username string `long:"username" description:"Username for API authentication" required:"true"`
-	Password string `long:"password" description:"Password for API authentication" required:"true"`
+	Username string `short:"u" long:"username" description:"Username for API authentication" required:"true"`
+	Password string `short:"p" long:"password" description:"Password for API authentication" required:"true"`
 
 }
 var loginCommand LoginCommand
@@ -18,9 +18,7 @@ func init() {
 		&loginCommand)
 }
 func (x *LoginCommand) Execute(args []string) error {
-	if options.Logging != "" {
-		SetupLogging()
-	}
+	SetupLogging(options.Logging)
 	if len(x.Username) > 255 || len(x.Password) > 255 {
 		return &flags.Error{flags.ErrInvalidChoice, "Username and password should be under 256 symbols"}
 	}

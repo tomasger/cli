@@ -22,9 +22,7 @@ func init() {
 		&serversCommand)
 }
 func (x *ServersCommand) Execute(args []string) error {
-	if options.Logging != "" {
-		SetupLogging()
-	}
+	SetupLogging(options.Logging)
 	if x.Local {
 		servers, err := LoadServerData()
 		if err != nil {
