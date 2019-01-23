@@ -11,6 +11,7 @@ type LoginCommand struct {
 
 }
 var loginCommand LoginCommand
+var maxLength = 255
 func init() {
 	parser.AddCommand("login",
 		"Store login credentials for API authorization in the persistent data store",
@@ -19,7 +20,7 @@ func init() {
 }
 func (x *LoginCommand) Execute(args []string) error {
 	SetupLogging(options.Logging)
-	if len(x.Username) > 255 || len(x.Password) > 255 {
+	if len(x.Username) > maxLength || len(x.Password) > maxLength {
 		return &flags.Error{flags.ErrInvalidChoice, "Username and password should be under 256 symbols"}
 	}
 	SaveLoginData(x.Username, x.Password)
