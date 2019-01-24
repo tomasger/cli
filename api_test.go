@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"github.com/sirupsen/logrus"
+	"io/ioutil"
+	"testing"
+)
 type testingWebRequest struct {
 	json string
 }
@@ -15,6 +19,7 @@ func TestGetTokenWithCorrectAuth(t *testing.T) {
 	}
 }
 func TestGetTokenWithIncorrectAuth(t *testing.T) {
+	logrus.SetOutput(ioutil.Discard)
 	_, err := GetToken("tesonet", "wrongpassword")
 	if a, ok := err.(CliError); !(ok && a.errorType == ErrWeb){
 		t.Errorf("Failed to receive error with incorrect credentials. Expected: %v(ErrWeb). Got: %v", a.errorType, err.Error())
@@ -28,6 +33,7 @@ func TestGetServersWithCorrectToken(t *testing.T) {
 	}
 }
 func TestGetServersWithIncorrectToken(t *testing.T) {
+	logrus.SetOutput(ioutil.Discard)
 	_, err := GetServers("f9731b590611a5a9377fbd02f247abcd")
 	if a, ok := err.(CliError); !(ok && a.errorType == ErrWeb){
 		t.Errorf("Failed to receive error with incorrect token. Expected: %v(ErrWeb). Got: %v", a.errorType, err.Error())
