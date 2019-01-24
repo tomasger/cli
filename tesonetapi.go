@@ -15,9 +15,6 @@ type WebRequestData struct {
 	headers map[string]string
 	postdata []byte
 }
-type WebRequester interface {
-	FetchBytes(url, method string, headers map[string]string, postdata []byte) ([]byte, error)
-}
 func (requester WebRequestData) GetBytes() ([]byte, error) {
 	var requestBody io.Reader
 	if requester.postdata == nil {
@@ -39,6 +36,7 @@ func (requester WebRequestData) GetBytes() ([]byte, error) {
 		return nil, ErrWeb.New(msg)
 	}
 	body, _ := ioutil.ReadAll(response.Body)
+	logrus.Debug("Successfully received HTTP response from ", requester.url)
 	return body, nil
 }
 func GetToken(username, password string) (string, error){

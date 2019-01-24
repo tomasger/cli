@@ -19,6 +19,7 @@ func SaveLoginData(username string, password string) {
 	if err != nil {
 		logrus.Panic("Failed to write to credentials file. Error: ", err)
 	}
+	logrus.Debug("Login data saved to ",storagePath, fileNames.credentials)
 }
 func LoadLoginData() (string, string, error) {
 	data, err := ioutil.ReadFile(storagePath + fileNames.credentials)
@@ -30,6 +31,7 @@ func LoadLoginData() (string, string, error) {
 	if parse_err != nil {
 		return "", "", ErrParse.Wrap(parse_err, "Couldn't load credentials data")
 	}
+	logrus.Debug("Reading login data from ", storagePath, fileNames.credentials)
 	return cred[0], cred[1], nil
 }
 func SaveServerData(serverlist []byte) {
@@ -38,6 +40,7 @@ func SaveServerData(serverlist []byte) {
 	if err != nil {
 		logrus.Panic("Failed to write to server file. Error: ", err)
 	}
+	logrus.Debug("Server data saved to ",storagePath, fileNames.servers)
 }
 func LoadServerData() ([]byte, error) {
 	data, err := ioutil.ReadFile(storagePath + fileNames.servers)
@@ -45,11 +48,13 @@ func LoadServerData() ([]byte, error) {
 		logrus.Error("Failed reading from servers file. Error: ", err)
 		return nil, ErrFile.Wrap(err,"Failed reading from servers file")
 	}
+	logrus.Debug("Read server data from ", storagePath, fileNames.servers)
 	return data, nil
 }
 func ensureStorageAccessibility() {
 	// check if storage path exists. Create the folder for it in case it does not
 	if _, err := os.Stat(storagePath); os.IsNotExist(err) {
 		os.MkdirAll(storagePath, os.ModePerm)
+		logrus.Debug("Storagepath did not exist. Folder ", storagePath, " was created")
 	}
 }

@@ -1,6 +1,9 @@
 package main
 
-import "github.com/jessevdk/go-flags"
+import (
+	"github.com/jessevdk/go-flags"
+	"github.com/sirupsen/logrus"
+)
 type Login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -20,6 +23,7 @@ func init() {
 }
 func (x *LoginCommand) Execute(args []string) error {
 	SetupLogging(options.Logging)
+	logrus.Debug("Login executing")
 	if len(x.Username) > maxLength || len(x.Password) > maxLength {
 		return &flags.Error{flags.ErrInvalidChoice, "Username and password should be under 256 symbols"}
 	}

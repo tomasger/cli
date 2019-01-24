@@ -25,5 +25,5 @@ func SetupLogging(loggingLevel string) {
 			logrus.SetLevel(logrus.WarnLevel)
 		}
 	}
-
+	logrus.Debug("cli started")
 }

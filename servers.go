@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"os"
 )
 type servers struct {
@@ -23,6 +24,7 @@ func init() {
 }
 func (x *ServersCommand) Execute(args []string) error {
 	SetupLogging(options.Logging)
+	logrus.Debug("Servers executing, arguments: ", args)
 	if x.Local {
 		servers, err := LoadServerData()
 		if err != nil {

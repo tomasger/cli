@@ -37,6 +37,7 @@ func DisplayServerData (data []byte, sorting string) error {
 		fmt.Printf("%-20s%4d\n", server.Name, server.Distance)
 	}
 	fmt.Printf("Total number of servers: %v\n", len(serverlist))
+	logrus.Debug("Data was displayed in command line window")
 	return nil
 }
 func ParseLoginData(data []byte) ([]string, error) {
