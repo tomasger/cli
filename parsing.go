@@ -13,11 +13,11 @@ func JsonBytesToStruct(data []byte, container interface{}) error {
 		msg := ""
 		switch t := container.(type) {
 		case *[]servers:
-			msg = fmt.Sprintf("JSON Bytes to %T conversion failed" , t)
+			msg = fmt.Sprintf("JSON Bytes to %T conversion failed", t)
 		case *map[string]string:
-			msg = fmt.Sprintf("JSON Bytes to %T conversion failed" , t)
+			msg = fmt.Sprintf("JSON Bytes to %T conversion failed", t)
 		default:
-			msg = fmt.Sprintf("JSON Bytes to %T conversion is not implemented" , t)
+			msg = fmt.Sprintf("JSON Bytes to %T conversion is not implemented", t)
 		}
 		return ErrJSON.Wrap(err, msg)
 	}
@@ -35,7 +35,7 @@ func ParseLoginData(data []byte) ([]string, error) {
 	}
 	return credentials, nil
 }
-func ParseServerData (data []byte) ([]servers, error) {
+func ParseServerData(data []byte) ([]servers, error) {
 	var serverlist []servers
 	err := JsonBytesToStruct(data, &serverlist)
 	if err != nil {

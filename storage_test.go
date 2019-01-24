@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 )
+
 var realStoragePath string = storagePath
 var realFileNames FileNames = fileNames
 
@@ -22,7 +23,7 @@ func RevertTestStorageData() {
 	storagePath = realStoragePath
 	fileNames = realFileNames
 }
-func BackupStorageFile(fileName string) bool{
+func BackupStorageFile(fileName string) bool {
 	if _, err := os.Stat(storagePath + fileNames.credentials); os.IsNotExist(err) {
 		return false // file did not exist
 	}
@@ -31,7 +32,7 @@ func BackupStorageFile(fileName string) bool{
 
 }
 func RestoreStorageFile(fileName string) {
-	os.Remove(storagePath+fileName)
+	os.Remove(storagePath + fileName)
 	os.Rename(storagePath+fileName+"_testbackup", storagePath+fileName)
 }
 func TestSaveLoginData(t *testing.T) {
@@ -44,8 +45,8 @@ func TestSaveLoginData(t *testing.T) {
 		t.Errorf("Save login data failed. Expected: file %v%v to be created. Got: %v", storagePath, fileNames, err)
 	}
 	RevertTestStorageData()
-	expectedData := []byte(username+"\n"+password)
-	if !bytes.Equal(dat,expectedData) {
+	expectedData := []byte(username + "\n" + password)
+	if !bytes.Equal(dat, expectedData) {
 		t.Errorf("Save login data failed. Expected file contents: %s. Got: %s", expectedData, dat)
 	}
 }
@@ -60,7 +61,7 @@ func TestSaveServersData(t *testing.T) {
 		t.Errorf("Save server data failed. Expected: file %v%v to be created. Got: %v", storagePath, fileNames, err)
 	}
 	RevertTestStorageData()
-	if !bytes.Equal(dat,expectedList) {
+	if !bytes.Equal(dat, expectedList) {
 		t.Errorf("Save login data failed. Expected file contents: %s. Got: %s", expectedList, dat)
 	}
 }
@@ -91,7 +92,7 @@ func TestLoadServerDataValid(t *testing.T) {
 	data, err := LoadServerData()
 	expectedData := []byte("[{\"name\":\"United States #93\",\"distance\":1634},{\"name\":\"Germany #81\",\"distance\":26},{\"name\":\"Latvia #7\",\"distance\":1581}]\n")
 	RevertTestStorageData()
-	if err != nil || !bytes.Equal(expectedData,data) {
+	if err != nil || !bytes.Equal(expectedData, data) {
 		t.Errorf("Test Load server data failed. Expected: %s; error: %v. Got: %s; error: %v",
 			expectedData, nil, data, err)
 	}

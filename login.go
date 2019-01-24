@@ -4,6 +4,7 @@ import (
 	"github.com/jessevdk/go-flags"
 	"github.com/sirupsen/logrus"
 )
+
 type Login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -11,10 +12,11 @@ type Login struct {
 type LoginCommand struct {
 	Username string `short:"u" long:"username" description:"Username for API authentication" required:"true"`
 	Password string `short:"p" long:"password" description:"Password for API authentication" required:"true"`
-
 }
+
 var loginCommand LoginCommand
 var maxLength = 255
+
 func init() {
 	parser.AddCommand("login",
 		"Store login credentials for API authorization in the persistent data store",

@@ -4,9 +4,11 @@ import (
 	"github.com/jessevdk/go-flags"
 	"os"
 )
+
 type Options struct {
 	Logging string `short:"l" long:"logging" description:"Enables logging." choice:"debug" choice:"warn"`
 }
+
 var options Options
 var parser = flags.NewParser(&options, flags.Default)
 
