@@ -5,20 +5,23 @@ import (
 	"github.com/sirupsen/logrus"
 	"os"
 )
+
 type servers struct {
-	Name string
+	Name     string
 	Distance int
 }
 
 type ServersCommand struct {
-	Local bool `long:"local" description:"Shows saved servers list from a persistent data storage"`
-	Sort string `short:"s" long:"sort" description:"Sorts out the server list by Alphabetical order or best first" choice:"best" choice:"alphabetical"`
+	Local bool   `long:"local" description:"Shows saved servers list from a persistent data storage"`
+	Sort  string `short:"s" long:"sort" description:"Sorts out the server list by Alphabetical order or best first" choice:"best" choice:"alphabetical"`
 }
+
 var serversCommand ServersCommand
+
 func init() {
 	parser.AddCommand("servers",
 		"Fetch server list from API. Use --local to fetch the previously saved server list",
-		"Authenticates with the server to receive a token, then uses the token to fetch the server list from the API." +
+		"Authenticates with the server to receive a token, then uses the token to fetch the server list from the API."+
 			"Use --local to fetch the list that is saved from a previous API call to the persistent data store",
 		&serversCommand)
 }

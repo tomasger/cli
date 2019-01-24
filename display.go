@@ -6,8 +6,8 @@ import (
 	"sort"
 )
 
-func DisplayServerData (data []byte, sorting string) error {
-	serverlist , err := ParseServerData(data)
+func DisplayServerData(data []byte, sorting string) error {
+	serverlist, err := ParseServerData(data)
 	if err != nil {
 		return ErrParse.Wrap(err, "Displaying server information failed")
 	}

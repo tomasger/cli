@@ -6,7 +6,7 @@ import (
 )
 
 func TestSort(t *testing.T) {
-	sortData:= []servers {
+	sortData := []servers{
 		{"Singapore #23", 1023},
 		{"Germany #36", 1979},
 		{"Lithuania #15", 800},

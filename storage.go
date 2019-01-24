@@ -7,7 +7,8 @@ import (
 )
 
 var storagePath string = "storage/"
-var fileNames FileNames = FileNames{credentials: "cred", servers:"servers"}
+var fileNames FileNames = FileNames{credentials: "cred", servers: "servers"}
+
 type FileNames struct {
 	credentials, servers string
 }
@@ -15,17 +16,17 @@ type FileNames struct {
 func SaveLoginData(username string, password string) {
 	data := []byte(username + "\n" + password)
 	ensureStorageAccessibility()
-	err := ioutil.WriteFile(storagePath + fileNames.credentials, data, 0644)
+	err := ioutil.WriteFile(storagePath+fileNames.credentials, data, 0644)
 	if err != nil {
 		logrus.Panic("Failed to write to credentials file. Error: ", err)
 	}
-	logrus.Debug("Login data saved to ",storagePath, fileNames.credentials)
+	logrus.Debug("Login data saved to ", storagePath, fileNames.credentials)
 }
 func LoadLoginData() (string, string, error) {
 	data, err := ioutil.ReadFile(storagePath + fileNames.credentials)
 	if err != nil {
 		logrus.Error("Failed reading from credentials file. Error: ", err)
-		return "", "", ErrFile.Wrap(err,"Failed reading from credentials file")
+		return "", "", ErrFile.Wrap(err, "Failed reading from credentials file")
 	}
 	cred, parse_err := ParseLoginData(data)
 	if parse_err != nil {
@@ -36,17 +37,17 @@ func LoadLoginData() (string, string, error) {
 }
 func SaveServerData(serverlist []byte) {
 	ensureStorageAccessibility()
-	err := ioutil.WriteFile(storagePath + fileNames.servers, serverlist, 0644)
+	err := ioutil.WriteFile(storagePath+fileNames.servers, serverlist, 0644)
 	if err != nil {
 		logrus.Panic("Failed to write to server file. Error: ", err)
 	}
-	logrus.Debug("Server data saved to ",storagePath, fileNames.servers)
+	logrus.Debug("Server data saved to ", storagePath, fileNames.servers)
 }
 func LoadServerData() ([]byte, error) {
 	data, err := ioutil.ReadFile(storagePath + fileNames.servers)
 	if err != nil {
 		logrus.Error("Failed reading from servers file. Error: ", err)
-		return nil, ErrFile.Wrap(err,"Failed reading from servers file")
+		return nil, ErrFile.Wrap(err, "Failed reading from servers file")
 	}
 	logrus.Debug("Read server data from ", storagePath, fileNames.servers)
 	return data, nil
